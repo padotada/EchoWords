@@ -125,25 +125,6 @@ Typical variables you may need:
 
 ---
 
-## 🧪 Future Improvements
-
-- Add user authentication and saved history
-- Support side-by-side comparison for multiple model outputs
-- Add language detection confidence and richer linguistic metrics
-- Improve error handling and request retry logic
-- Containerize deployment with Docker
-
----
-
-## 📸 Screenshots
-
-> Add your screenshots here.
-
-- `docs/home.png` — homepage
-- `docs/results.png` — translation + analysis output
-
----
-
 ## 🙌 Acknowledgments
 
 - Irvine Hacks organizers and mentors
