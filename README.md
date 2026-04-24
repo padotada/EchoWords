@@ -70,12 +70,10 @@ Our team worked across frontend, backend, and AI integration to ship a usable en
 
 ## 📦 Getting Started
 
-> Update these commands if your exact folder names differ.
-
 ### 1) Clone the repository
 
 ```bash
-git clone https://github.com/arjun-mann/EchoWords.git
+git clone https://github.com/padotada/EchoWords.git
 cd EchoWords
 ```
 
@@ -92,7 +90,7 @@ pip install -r requirements.txt
 Create a `.env` file in the backend directory:
 
 ```env
-GEMINI_API_KEY=your_api_key_here
+GEMINI_API_KEY=SOME_API_KEY
 FLASK_ENV=development
 ```
 
@@ -146,14 +144,8 @@ Typical variables you may need:
 
 ---
 
-## 📄 License
-
-Add your preferred license (MIT is common for student projects).
-
----
-
 ## 🙌 Acknowledgments
 
 - Irvine Hacks organizers and mentors
 - Gemini Developer API documentation and tooling
-- Teammates who collaborated on product design and implementation
+- Teammates
