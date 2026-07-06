@@ -5,7 +5,7 @@ It combines a **React frontend** with a **Flask backend** to translate and analy
 
 ---
 
-## 🚀 Features
+## Features
 
 - 🌍 **Multilingual text input**
 - 🔁 **Translation to English**
@@ -15,7 +15,7 @@ It combines a **React frontend** with a **Flask backend** to translate and analy
 
 ---
 
-## 🧩 Tech Stack
+## Tech Stack
 
 ### Frontend
 - React
@@ -31,7 +31,7 @@ It combines a **React frontend** with a **Flask backend** to translate and analy
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 ```text
 Client (React UI)
@@ -45,21 +45,21 @@ Translated + analyzed English output returned to UI
 
 ---
 
-## 🎯 Motivation
+## Motivation
 
 Language tools often stop at literal translation.  
 EchoWords was built to provide both **translation** and **analysis** so users can better understand meaning, tone, and context—not just converted words.
 
 ---
 
-## 👥 Team & Collaboration
+## Team & Collaboration
 
 This project was built collaboratively during Irvine Hacks.  
 Our team worked across frontend, backend, and AI integration to ship a usable end-to-end product under hackathon time constraints.
 
 ---
 
-## 🛠️ My Contributions
+## My Contributions
 
 - Built and integrated parts of the **React + Flask full-stack flow**
 - Worked on **Gemini Developer API query/prompt refinement**
@@ -68,7 +68,7 @@ Our team worked across frontend, backend, and AI integration to ship a usable en
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 ### 1) Clone the repository
 
@@ -115,7 +115,7 @@ The app should now be running locally (commonly on `http://localhost:3000`) and 
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Typical variables you may need:
 
@@ -129,4 +129,4 @@ Typical variables you may need:
 
 - Irvine Hacks organizers and mentors
 - Gemini Developer API documentation and tooling
-- Teammates
+- Team: Roy Park, Tony Liu, Justin Tran, Arjun Mann
