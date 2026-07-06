@@ -7,11 +7,11 @@ It combines a **React frontend** with a **Flask backend** to translate and analy
 
 ## Features
 
-- 🌍 **Multilingual text input**
-- 🔁 **Translation to English**
-- 🧠 **AI-powered language analysis**
-- ⚡ **Optimized Gemini API query design** for faster, better responses
-- 💻 **Clean web interface** for quick interaction and iteration
+- **Multilingual text input**
+- **Translation to English**
+- **AI-powered language analysis**
+- **Optimized Gemini API query design** for faster, better responses
+- **Clean web interface** for quick interaction and iteration
 
 ---
 
@@ -125,7 +125,7 @@ Typical variables you may need:
 
 ---
 
-## 🙌 Acknowledgments
+## Acknowledgments
 
 - Irvine Hacks organizers and mentors
 - Gemini Developer API documentation and tooling
