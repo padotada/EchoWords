@@ -1,8 +1,12 @@
 import json
+import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
-genai.configure(api_key="AIzaSyDYu3B89zPTavNY2R3r8hRtMHpBCm_nnTk")
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key)
 
 generation_config = {
   "temperature": 1,

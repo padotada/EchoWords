@@ -1,3 +1,5 @@
+# env file
+.env
 # Logs
 logs
 *.log
@@ -22,3 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# misc
+backend/__pycache__/
+venv/
