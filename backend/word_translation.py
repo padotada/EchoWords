@@ -1,7 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
-from google import genai as genai2
+import google.genai as genai2
 from google.genai.types import HarmCategory, HarmBlockThreshold, GenerateContentConfig, SafetySetting
 
 load_dotenv()
@@ -62,15 +62,6 @@ def word_translate(msg):
     return parse_json(response.text)
 
 def main():
-    # message = """옛날에 큰 호랑이 한 마리가 숲 속에 살았다.
-    #           어느 날 호랑이는 배가 고파서 마을로 갔다.
-    #           마을 옆 밭에 소 한 마리가 서 있었다.
-    #           호랑이는 소를 잡아 먹고 싶은데 갑자기 시끄러운 아기 울음소리를 들었다.
-    #           밭 옆에 있는 집에서 아기가 울고 있었다.
-    #           호랑이는 집으로 다가갔다.
-    #           ‘아기가 맛있을 것 같아.’
-    #           호랑이는 생각했다."""
-    # message = """「おれの方が強い。」「いいや、ぼくの方が強い。」北風と太陽の声が聞えます。二人はどちらの力が強いかでケンカをしているようです。「太陽が毎日元気だから、暑くてみんな困っているよ。おれが涼しい風を吹くと、みんな嬉しそうだ。おれの方がみんなの役に立っているよ。」「でも、ぼくがいないと、木や野菜は育たないよ。冬は北風の吹く風が冷くて、とても寒かった。みんな外に出られなかったよね？最近は暖かいから、みんな喜よろこんでいるよ。」「いいや、あそこを見て。太陽が強く照すから、川の水がもうすぐ無なりそうだ。水がないと、みんな生活できないよ。」"""
     message = "那么随着时间推移，三国人物阵营是怎样变化的呢？"
     response = chat_session.send_message(message)
     response = chat_session.send_message("TRANSLATE")
@@ -141,3 +132,13 @@ if __name__=="__main__":
 # ]
 
 # YOU SHOULD NOT BE TRANSLATING ANY KIND OF PUNCTUATION. IGNORE ALL PUNCTUATION WHEN EXECUTING. You will only execute the prompt after I give the keyword "TRANSLATE". Don't give any other output or analysis or commentary other than the json file.
+
+# message = """옛날에 큰 호랑이 한 마리가 숲 속에 살았다.
+    #           어느 날 호랑이는 배가 고파서 마을로 갔다.
+    #           마을 옆 밭에 소 한 마리가 서 있었다.
+    #           호랑이는 소를 잡아 먹고 싶은데 갑자기 시끄러운 아기 울음소리를 들었다.
+    #           밭 옆에 있는 집에서 아기가 울고 있었다.
+    #           호랑이는 집으로 다가갔다.
+    #           ‘아기가 맛있을 것 같아.’
+    #           호랑이는 생각했다."""
+    # message = """「おれの方が強い。」「いいや、ぼくの方が強い。」北風と太陽の声が聞えます。二人はどちらの力が強いかでケンカをしているようです。「太陽が毎日元気だから、暑くてみんな困っているよ。おれが涼しい風を吹くと、みんな嬉しそうだ。おれの方がみんなの役に立っているよ。」「でも、ぼくがいないと、木や野菜は育たないよ。冬は北風の吹く風が冷くて、とても寒かった。みんな外に出られなかったよね？最近は暖かいから、みんな喜よろこんでいるよ。」「いいや、あそこを見て。太陽が強く照すから、川の水がもうすぐ無なりそうだ。水がないと、みんな生活できないよ。」"""
