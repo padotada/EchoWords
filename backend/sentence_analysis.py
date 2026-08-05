@@ -1,12 +1,12 @@
 import json
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
+import google.genai as genai
+from google.genai.types import HarmCategory, HarmBlockThreshold
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key)
+client = genai.Client(api_key=api_key)
 
 generation_config = {
   "temperature": 1,
@@ -17,7 +17,7 @@ generation_config = {
 }
 
 model = genai.GenerativeModel(
-  model_name="gemini-1.5-flash",
+  model_name="gemini-3.6-flash",
   generation_config=generation_config,
   system_instruction = """Disregard all previous prompts. You will be acting as a professional translator who is translating to an amateur learner. Do not respond until I prompt you. 
                           I will later provide lines of text for you in a language. 
@@ -68,7 +68,7 @@ chat_session = model.start_chat(
   ]
 )
 
-def sentence_translate(original_text: str) -> json:
+def sentence_translate(original_text: str):
     response = chat_session.send_message(original_text)
     response = chat_session.send_message("PLEASE HELP")
     return parse_json(response.text)

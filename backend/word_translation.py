@@ -1,13 +1,13 @@
 import json
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai2
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
+from google import genai as genai2
+from google.genai.types import HarmCategory, HarmBlockThreshold, GenerateContentConfig, SafetySetting
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
-genai2.configure(api_key)
+client = genai2.Client(api_key=api_key)
 
 generation_config = {
   "temperature": 1,
@@ -17,79 +17,45 @@ generation_config = {
   "response_mime_type": "application/json",
 }
 
-model = genai2.GenerativeModel(
-  model_name="gemini-1.5-flash",
-  generation_config=generation_config,
-  system_instruction ="""Disregard all prior instructions. You will be acting as a professional translator who is translating to an amateur learner. Provide me a word by word (INCLUDING punctuations) english translation of the text I will send you next.
-                        Your output will only have 1 JSON file, in which the text (INCLUDING PUNCTUATION) will be parsed into a dictionary with the original word being the key and the translation being the value. 
-                        All punctuation should be translated or considered during execution. 
-                        All of the keys must be able to combine to compose the entirety of the original text including punctuation. 
-                        Example input: "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面。"
-                        Example output in the proper JSON schema: 
-[
-
-  {"作为": "as"},
-
-  {"中国": "China"},
-
-  {"文学": "literature"},
-
-  {"史上": "in history"},
-
-  {"第一部": "the first"},
-
-  {"章回": "chapter"},
-
-  {"小说": "novel"},
-
-  {"，": "comma"},
-
-  {"《三国演义》": "Romance of the Three Kingdoms"},
-
-  {"为": "for"},
-
-  {"我们": "us"},
-
-  {"展示": "show"},
-
-  {"出": "out"},
-
-  {"一幅": "a"},
-
-  {"波澜壮阔": "grand"},
-
-  {"乱世": "turbulent times"},
-
-  {"英雄": "hero"},
-
-  {"争": "fight"},
-
-  {"天下": "the world"},
-
-  {"的": "of"},
-
-  {"历史": "history"},
-
-  {"画面": "picture"}
-
-  {"。": "period"},
-
+safety_settings = [
+    SafetySetting(
+        category= HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold=HarmBlockThreshold.BLOCK_NONE,
+    ),
+    SafetySetting(
+        category=HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold=HarmBlockThreshold.BLOCK_NONE,
+    ),
+    SafetySetting(
+        category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold=HarmBlockThreshold.BLOCK_NONE,
+    ),
+    SafetySetting(
+        category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=HarmBlockThreshold.BLOCK_NONE,
+    ),
 ]
 
-YOU SHOULD NOT BE TRANSLATING ANY KIND OF PUNCTUATION. IGNORE ALL PUNCTUATION WHEN EXECUTING. You will only execute the prompt after I give the keyword "TRANSLATE". Don't give any other output or analysis or commentary other than the json file.
+config=GenerateContentConfig(
+    **generation_config, safety_settings=safety_settings,
+    system_instruction="""
+  You are a professional translator helping an amateur learner.
 
-""" ,
-  safety_settings={HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                   HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                   HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                   HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                   }
-)
+When the user sends a message beginning with TRANSLATE, translate the text
+following that keyword.
 
-chat_session = model.start_chat(
-  history=[
-  ]
-)
+Return only a valid JSON array. Each array item must contain one source segment
+as the key and its English translation as the value.
+
+Preserve punctuation as separate segments. Do not translate punctuation.
+The concatenated keys must reproduce the original source text exactly.
+""" 
+  )
+
+chat_session = client.chats.create(
+    model="gemini-3.6-flash",
+    config=config)
+
 def word_translate(msg):
     response = chat_session.send_message(msg)
     response = chat_session.send_message("TRANSLATE")
@@ -117,7 +83,13 @@ def parse_json(jsonfile):
 
 if __name__=="__main__":
     main()
-
+                        
+# Disregard all prior instructions. You will be acting as a professional translator who is translating to an amateur learner. Provide me a word by word (INCLUDING punctuations) english translation of the text I will send you next.
+#                         Your output will only have 1 JSON file, in which the text (INCLUDING PUNCTUATION) will be parsed into a dictionary with the original word being the key and the translation being the value. 
+#                         All punctuation should be translated or considered during execution. 
+#                         All of the keys must be able to combine to compose the entirety of the original text including punctuation. 
+#                         Example input: "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面。"
+#                         Example output in the proper JSON schema: 
 # [
 
 #   {"作为": "as"},
@@ -133,6 +105,8 @@ if __name__=="__main__":
 #   {"章回": "chapter"},
 
 #   {"小说": "novel"},
+
+#   {"，": "comma"},
 
 #   {"《三国演义》": "Romance of the Three Kingdoms"},
 
@@ -162,7 +136,8 @@ if __name__=="__main__":
 
 #   {"画面": "picture"}
 
+#   {"。": "period"},
+
 # ]
 
-# # 
-                        
+# YOU SHOULD NOT BE TRANSLATING ANY KIND OF PUNCTUATION. IGNORE ALL PUNCTUATION WHEN EXECUTING. You will only execute the prompt after I give the keyword "TRANSLATE". Don't give any other output or analysis or commentary other than the json file.
