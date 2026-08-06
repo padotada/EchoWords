@@ -25,7 +25,7 @@ safety_settings=[SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, 
 config = GenerateContentConfig(
   **generation_config, safety_settings=safety_settings,
   system_instruction = 
-  """Disregard all previous prompts. You will be acting as a professional translator who is translating to an amateur learner. 
+  """You will be acting as a professional translator who is translating to an amateur learner. 
   Do not respond until I prompt you. 
   I will later provide lines of text for you in a language. 
   Analyze the grammar and the sentence structure in detail line by line for every sentence. 
@@ -70,15 +70,12 @@ chat_session = client.chats.create(
     config=config)
 
 def sentence_translate(original_text: str):
-    response = chat_session.send_message(original_text)
-    response = chat_session.send_message("PLEASE HELP")
+    response = chat_session.send_message(f"{original_text}\nPLEASE HELP")
     return parse_json(response.text)
     
 def main():
-    #message = "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面，故事情节随着几大人物阵营的演变紧紧抓牢看客眼球。那么随着时间推移，三国人物阵营是怎样变化的呢？狗熊会根据《三国演义》原著电子版汉语文本，应用文本分析、关联规则挖掘和社区探测技术，从数据角度分析三国各个时期的人物阵营情况。"
-    message = """"""
-    response = chat_session.send_message(message)
-    response = chat_session.send_message("PLEASE HELP")
+    message = "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面，故事情节随着几大人物阵营的演变紧紧抓牢看客眼球。那么随着时间推移，三国人物阵营是怎样变化的呢？狗熊会根据《三国演义》原著电子版汉语文本，应用文本分析、关联规则挖掘和社区探测技术，从数据角度分析三国各个时期的人物阵营情况。"
+    response = chat_session.send_message(f"{message}\nPLEASE HELP")
     print(parse_json(response.text))
 
 

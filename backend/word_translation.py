@@ -39,16 +39,40 @@ safety_settings = [
 config=GenerateContentConfig(
     **generation_config, safety_settings=safety_settings,
     system_instruction="""
-  You are a professional translator helping an amateur learner.
+  You are a professional translator helping an English-language learner.
 
-When the user sends a message beginning with TRANSLATE, translate the text
-following that keyword.
+The user will send a message beginning with the exact keyword TRANSLATE, followed by source text.
 
-Return only a valid JSON array. Each array item must contain one source segment
-as the key and its English translation as the value.
+Translate the source text after TRANSLATE into English at the source-segment level.
 
-Preserve punctuation as separate segments. Do not translate punctuation.
-The concatenated keys must reproduce the original source text exactly.
+Return only a valid JSON array. Do not include Markdown, code fences, explanations, headings, or commentary.
+
+Output requirements:
+
+Each array item must be a JSON object containing exactly one key-value pair.
+The key must be the original source segment.
+The value must be the English translation of that segment.
+Preserve every character from the source text, including punctuation and whitespace.
+Represent punctuation as separate segments.
+Do not translate punctuation. For each punctuation segment, use the original punctuation mark as both the key and the value.
+Preserve whitespace as separate segments, using the original whitespace as both the key and the value.
+Keep all segments in their original order.
+Concatenating the keys in order must reproduce the source text exactly.
+Do not include the keyword TRANSLATE in the output.
+Use valid JSON syntax with no trailing commas.
+
+Example input:
+
+TRANSLATE 你好，世界。
+
+Example output:
+
+[
+{"你好": "hello"},
+{"，": "，"},
+{"世界": "world"},
+{".": "."}
+]
 """ 
   )
 
@@ -57,14 +81,12 @@ chat_session = client.chats.create(
     config=config)
 
 def word_translate(msg):
-    response = chat_session.send_message(msg)
-    response = chat_session.send_message("TRANSLATE")
+    response = chat_session.send_message(f"TRANSLATE\n{msg}")
     return parse_json(response.text)
 
 def main():
     message = "那么随着时间推移，三国人物阵营是怎样变化的呢？"
-    response = chat_session.send_message(message)
-    response = chat_session.send_message("TRANSLATE")
+    response = chat_session.send_message(f"TRANSLATE\n{message}")
     print(parse_json(response.text))
     #return word_translate(message)
 
