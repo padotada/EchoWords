@@ -43,9 +43,8 @@ safety_settings = [
 ]
 
 config=GenerateContentConfig(
-    temperature=1,
-    top_p=0.95,
-    top_k=64,
+    temperature=0.2,
+    top_p=0.9,
     max_output_tokens=8192,
     response_mime_type="application/json",
     response_schema=SegmentTranslationData,
