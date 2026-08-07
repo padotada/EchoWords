@@ -69,7 +69,7 @@ chat_session = client.chats.create(
     model="gemini-3.6-flash",
     config=config)
 
-def sentence_translate(original_text: str):
+def analyze_sentence(original_text: str):
     response = chat_session.send_message(f"{original_text}\nPLEASE HELP")
     return parse_json(response.text)
     

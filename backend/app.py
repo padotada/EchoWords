@@ -9,7 +9,7 @@ import sentence_analysis
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/tran', methods=["POST"])
+@app.route('/api/translate', methods=["POST"])
 def entire_translate()->ResponseReturnValue:
     data = request.data
     print(data.decode("utf-8"))
@@ -22,13 +22,13 @@ def entire_translate()->ResponseReturnValue:
 
     #return word_translate()
 
-@app.route('/stran', methods=["POST"])
+@app.route('/api/translate/words', methods=["POST"])
 def s_translate():
     data = request.data
-    res = sentence_analysis.sentence_translate(data.decode("utf-8"))
+    res = sentence_analysis.analyze_sentence(data.decode("utf-8"))
     return res
 
-@app.route('/wtran', methods=["POST"])
+@app.route('/api/analyze/sentence', methods=["POST"])
 def w_translate():
     data = request.data
     print(data.decode("utf-8"))

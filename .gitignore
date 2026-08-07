@@ -27,4 +27,7 @@ dist-ssr
 
 # misc
 backend/__pycache__/
+backend/tests/__pycache__
+backend/tests/.pytest_cache
+backend/test_files.md
 venv/

@@ -3,22 +3,23 @@ import './App.css'
 
 function App() {
   const [defClick, setDefClick] = useState(false);
-  const [msg, setMSG] = useState("");
+  const [msg, setMsg] = useState("");
   const [translation, setTranslation] = useState("");
-  const [analysis, setAnalysis] = useState(null);
-  const [words, setWords] = useState(null);
-  const [hover_array, setHoverArray] = useState(null);
+  const [analysis, setAnalysis] = useState([]);
+  const [words, setWords] = useState([]);
+  const [hover_array, setHoverArray] = useState([]);
 
   const handleClear = () => {
-    setMSG("");
-    setWords("");
-    setAnalysis("");
+    setMsg("");
+    setWords([]);
+    setAnalysis([]);
     setTranslation("");
+    setHoverArray([]);
   };
   async function getData(){
     console.log("get data started");
     // url = "http://127.0.0.1:5000/tran"
-    const temp = await fetch("http://127.0.0.1:5000/tran", {
+    const temp = await fetch("http://127.0.0.1:5000/api/translate", {
       method: "POST",
       headers: {
         "Content-type" : "text/plain",
@@ -33,7 +34,7 @@ function App() {
 
     console.log("ran res", res);
     console.log(msg)
-    const w_list = await fetch("http://127.0.0.1:5000/wtran", {
+    const w_list = await fetch("http://127.0.0.1:5000/api/translate/words", {
       method: "POST",
       headers:  {
         "Content-type" : "application/json",
@@ -50,7 +51,7 @@ function App() {
     
   }
   async function unpack() {
-    const sentence = await fetch("http://127.0.0.1:5000/stran",{
+    const sentence = await fetch("http://127.0.0.1:5000/api/analyze/sentence",{
       method: "POST",
       headers:  {
         "Content-type" : "application/json",
@@ -58,7 +59,9 @@ function App() {
       body: msg,
     });
     let res2 = await sentence.json();
-    //console.log(res2);
+    console.log("Analysis response:", res2);
+    console.log("Response type:", typeof res2);
+    console.log("Is array:", Array.isArray(res2));
     if(!Array.isArray(res2)) res2 = [res2]
     setAnalysis(res2);
   }
@@ -67,7 +70,7 @@ function App() {
       <h1 className = "Title">EchoWords</h1>
       
       <div className="outer-div">
-         {!words ? <div><textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMSG(e.target.value)} value={msg}></textarea></div>
+         {!words ? <div><textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}></textarea></div>
           : <div className="box2">{
             words.map((e, i) => {
               const elem = Object.entries(e)[0];
