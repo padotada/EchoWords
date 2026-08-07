@@ -91,13 +91,13 @@ Create a `.env` file in the backend directory:
 
 ```env
 GEMINI_API_KEY=SOME_API_KEY
-FLASK_ENV=development
 ```
 
 Run the backend server:
 
 ```bash
-flask run
+cd .\backend\
+python app.py
 ```
 
 ### 3) Frontend setup (React)
@@ -111,7 +111,7 @@ npm install
 npm start
 ```
 
-The app should now be running locally (commonly on `http://localhost:3000`) and communicating with the Flask API.
+The app should now be running locally and communicating with the Flask API.
 
 ---
 
@@ -120,9 +120,6 @@ The app should now be running locally (commonly on `http://localhost:3000`) and 
 Typical variables you may need:
 
 - `GEMINI_API_KEY` — API key for Gemini Developer API
-- `FLASK_ENV` — Flask environment (`development` / `production`)
-- `API_BASE_URL` (frontend, optional) — backend URL if not localhost
-
 ---
 
 ## Acknowledgments
