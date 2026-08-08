@@ -20,8 +20,8 @@ class FullTranslationData(BaseModel):
         default=None,
         description="The detected language of the source text."
     )
-    target_language: str = Field(
-        description='The target language. Must be "English".'
+    target_language: Literal["English"] = Field(
+        description='The target language.'
     )
 
 
@@ -90,7 +90,7 @@ def translate(original_text: str)->FullTranslationData:
 def validate_translation( result: FullTranslationData, original_text: str) -> None:
     if result.source_text != original_text:
         raise ValueError(
-            "Gemini returned source text that doesn't match the input."
+            "Gemini returned a source text that doesn't match the input."
         )
 
     if result.target_language != "English":

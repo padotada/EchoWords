@@ -1,5 +1,7 @@
 import json
 import os
+from typing import Literal
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import google.genai as genai
 from google.genai.types import HarmCategory, HarmBlockThreshold, GenerateContentConfig, SafetySetting
@@ -8,13 +10,44 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
-generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 64,
-  "max_output_tokens": 8192,
-  "response_mime_type": "application/json",
-}
+class SentenceComponent(BaseModel):
+  source: str = Field(description="The exact source text for this grammatical component.")
+  translation: str = Field(description="The English translation of this component.")
+  role: str = Field(description="The grammatical role of the component, such as subject, predicate, object, modifier, or complement.")
+  part_of_speech: str = Field(description="The primary grammatical category of the component such as noun, verb, pronoun, adjective, or phrase.")
+  
+class SentenceAnalysis(BaseModel):
+  source: str = Field(
+        description="The exact original sentence being analyzed."
+    )
+
+  translation: str = Field(
+      description="A natural English translation of the sentence."
+  )
+
+  structure: str = Field(
+      description=(
+          "A concise representation of the sentence's grammatical structure."
+      )
+  )
+
+  explanation: str = Field(
+      description=(
+          "A learner-friendly explanation of how the sentence is constructed."
+      )
+  )
+
+  components: list[SentenceComponent]
+  
+class SentenceAnalysisData(BaseModel):
+  source_text: str = Field(
+      description="The exact source text supplied by the user."
+  )
+  source_language: str = Field(
+      description="The detected language of the source text."
+  )
+  target_language: Literal["English"]
+  sentences: list[SentenceAnalysis]
 
 safety_settings=[SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
                    SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
@@ -23,65 +56,75 @@ safety_settings=[SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, 
 ]
 
 config = GenerateContentConfig(
-  **generation_config, safety_settings=safety_settings,
+  temperature=0.2,
+  top_p=0.9,
+  max_output_tokens=8192,
+  response_mime_type="application/json", 
+  response_schema=SentenceAnalysisData,
+  safety_settings=safety_settings,
   system_instruction = 
-  """You will be acting as a professional translator who is translating to an amateur learner. 
-  Do not respond until I prompt you. 
-  I will later provide lines of text for you in a language. 
-  Analyze the grammar and the sentence structure in detail line by line for every sentence. 
-  After analyzing, give the direct translation. Please respond back in English that still reflects the original tone and structure. 
-  Put the response of your analysis in English in JSON format. Even for the nested key value pairs, recursively change the key into English. 
-  Also for each of the words and/or phrases from the original language, put a corresponding English word/phrase by recursively adding English next to the original language. 
-  Use this JSON schema: 
-  {Sentence: “original sentence”, Translation: “translated sentence”, Grammatical structure: “grammar”, Analysis: “translated analysis of the entire sentence, not individual words” }
-  Return: list[dictionaries] 
+  """You are a professional language analyst and translator helping an English-language learner.
 
-  Example input: "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面，故事情节随着几大人物阵营的演变紧紧抓牢看客眼球。那么随着时间推移，三国人物阵营是怎样变化的呢？狗熊会根据《三国演义》原著电子版汉语文本，应用文本分析、关联规则挖掘和社区探测技术，从数据角度分析三国各个时期的人物阵营情况。"
+Analyze the supplied source text sentence by sentence.
 
-  Example output:
-  [
-    {
-      "Sentence": "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面，故事情节随着几大人物阵营的演变紧紧抓牢看客眼球。", 
-      "Translation": "As the first chapter novel in the history of Chinese literature, \"Romance of the Three Kingdoms\" presents us with a magnificent historical picture of heroes vying for supremacy in a turbulent world. The plot, with the constant evolution of the major character camps, firmly captivates the audience.", 
-      "Grammatical structure": "Complex sentence, containing multiple parallel clauses and adverbial clauses. The subject is \"《三国演义》\" (Romance of the Three Kingdoms), and the predicates are \"展示\" (present) and \"抓牢\" (captivate).", 
-      "Analysis": "This sentence uses multiple parallel clauses and adverbial clauses to comprehensively describe the characteristics of \"Romance of the Three Kingdoms\" as a literary work and its appeal to readers." 
-    },
-    {
-      "Sentence": "那么随着时间推移，三国人物阵营是怎样变化的呢？", 
-      "Translation": "So, how did the character camps in the Three Kingdoms change over time?", 
-      "Grammatical structure": "Interrogative sentence, the subject is \"三国人物阵营\" (character camps in the Three Kingdoms), and the predicate is \"变化\" (change).", 
-      "Analysis": "This sentence poses the research question and introduces the research content." 
-    },
-    {
-      "Sentence": "狗熊会根据《三国演义》原著电子版汉语文本，应用文本分析、关联规则挖掘和社区探测技术，从数据角度分析三国各个时期的人物阵营情况。", 
-      "Translation": "Gou Xiong will analyze the electronic text version of the original \"Romance of the Three Kingdoms\" using text analysis, association rule mining, and community detection techniques to examine the character camp situations in various periods of the Three Kingdoms from a data perspective.", 
-      "Grammatical structure": "Simple sentence, the subject is \"狗熊会\" (Gou Xiong), and the predicate is \"分析\" (analyze).", 
-      "Analysis": "This sentence describes the research methodology and data source used in the study." 
-    }
-  ]
+For each sentence:
 
+Preserve the exact original sentence in the source field.
+Provide a natural English translation that preserves the original meaning, tone, and structure as closely as possible.
+Describe the grammatical structure in clear, concise English.
+Provide a learner-friendly explanation of how the sentence is constructed and what the sentence is doing in context.
+Break the sentence into meaningful grammatical components.
+For each component, preserve the exact source text, provide its English translation, identify its grammatical role, and identify its part of speech or phrase type.
 
-  You should respond back in English and only the JSON file with the correct return format when I say PLEASE HELP. DO NOT ADD ANY ADDITIONAL COMMENTARY BESIDES THE JSON FILE.
-  """
+General rules:
+
+- Analyze every sentence in the supplied text.
+- Preserve sentence order.
+- Do not omit source text.
+- Do not invent information that is not present in the source.
+- Use clear terminology suitable for a learner.
+- Keep grammatical explanations specific to the actual sentence rather than giving generic grammar descriptions.
+- The source_text field must exactly match the user's supplied text.
+- Detect and report the source language.
+- The target language must be English.
+"""
 )
 
-chat_session = client.chats.create(
-    model="gemini-3.6-flash",
-    config=config)
+def analyze_sentence(original_text: str)->SentenceAnalysisData:
+    if not isinstance(original_text, str) or not original_text.strip():
+      raise ValueError("Source text must be a non-empty string.")
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=original_text,
+        config=config,
+    )
+    if response.text is None:
+      raise RuntimeError("Gemini returned an empty response.")
+    result = SentenceAnalysisData.model_validate_json(response.text)
+    validate_analysis(result, original_text)
+    return result
 
-def analyze_sentence(original_text: str):
-    response = chat_session.send_message(f"{original_text}\nPLEASE HELP")
-    return parse_json(response.text)
+def validate_analysis(result: SentenceAnalysisData, original_text: str)->None:
+  if result.source_text != original_text:
+    raise ValueError("Gemini returned source_text that does not match the input.")
+  if not result.sentences:
+    raise ValueError("Gemini returned no sentence analysis.")
+  
+  for sentence in result.sentences:
+    if not sentence.source.strip():
+      raise ValueError("Sentence analysis contains an empty source sentence.")
+    if not sentence.translation.strip():
+      raise ValueError("Sentence analysis contains an empty translation.")
+    if not sentence.structure.strip():
+      raise ValueError("Sentence analysis contains an empty structure.")
+    if not sentence.explanation.strip():
+      raise ValueError("Sentence analysis contains an empty explanation.")
     
 def main():
     message = "作为中国文学史上第一部章回小说，《三国演义》为我们展示出了一幅波澜壮阔乱世英雄争天下的历史画面，故事情节随着几大人物阵营的演变紧紧抓牢看客眼球。那么随着时间推移，三国人物阵营是怎样变化的呢？狗熊会根据《三国演义》原著电子版汉语文本，应用文本分析、关联规则挖掘和社区探测技术，从数据角度分析三国各个时期的人物阵营情况。"
-    response = chat_session.send_message(f"{message}\nPLEASE HELP")
-    print(parse_json(response.text))
-
-
-def parse_json(some_file):
-    return json.loads(some_file)
-
+    result = analyze_sentence(message)
+    print(result.model_dump_json(indent=2, ensure_ascii=False))
+    
 if __name__ == "__main__":
     main()
     

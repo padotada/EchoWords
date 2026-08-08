@@ -20,7 +20,7 @@ class TranslationSegment(BaseModel):
     
 class SegmentTranslationData(BaseModel):
     source_text: str
-    target_language: str
+    target_language: Literal["English"] # may change later
     segments: list[TranslationSegment]
 
 safety_settings = [
