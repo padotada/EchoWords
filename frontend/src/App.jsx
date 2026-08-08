@@ -80,7 +80,7 @@ function App() {
       <div className="outer-div">
         {words.length === 0 ? 
           <div>
-            <textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}>
+            <textarea className="box" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}>
             </textarea>
           </div>
           : 
