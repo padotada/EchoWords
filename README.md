@@ -115,9 +115,9 @@ The app should now be running locally and communicating with the Flask API.
 
 ---
 
-## Environment Variables
+## Environment Variable
 
-Typical variables you may need:
+A variable you may need:
 
 - `GEMINI_API_KEY` — API key for Gemini Developer API
 ---
