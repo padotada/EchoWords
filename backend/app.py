@@ -9,32 +9,64 @@ import sentence_analysis
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/translate', methods=["POST"])
-def entire_translate()->ResponseReturnValue:
-    data = request.data
-    print(data.decode("utf-8"))
-    if not data.strip():
-        return jsonify({"error": "Request body cannot be empty"}), 400
-    res = translate.translate(data.decode("utf-8"))
-    if res is None:
-        return jsonify({"error": "Translation failed"}), 500
-    return res
+def is_valid_text(text: str):
+    return isinstance(text, str) and bool(text.strip())
 
-    #return word_translate()
+def error_response(code: str, message: str, status: int):
+    return jsonify({
+        "success": False,
+        "data": None,
+        "error": {
+            "code": code,
+            "message": message,
+        },
+    }), status
 
-@app.route('/api/translate/words', methods=["POST"])
-def s_translate():
-    data = request.data
-    res = sentence_analysis.analyze_sentence(data.decode("utf-8"))
-    return res
+@app.post('/api/translate')
+def translate_text()->ResponseReturnValue:
+    data = request.get_json() or {}
+    text = data.get("text", "")
+    if not is_valid_text(text):
+        return error_response("EMPTY_TEXT", "Text must not be empty", 400)
+    translated_res = translate.translate(text)
+    res = translated_res.model_dump()
+    
+    return jsonify({
+        "success": True,
+        "data": res,
+        "error": None}), 200
 
-@app.route('/api/analyze/sentence', methods=["POST"])
-def w_translate():
-    data = request.data
-    print(data.decode("utf-8"))
-    res = word_translation.word_translate(data.decode("utf-8"))
-    print(res)
-    return res
+@app.post('/api/analyze/sentence')
+def analyze():
+    data = request.get_json() or {}
+    text = data.get("text", "")
+    
+    if not is_valid_text(text):
+        return error_response("EMPTY_TEXT", "Text must not be empty", 400)
+         
+    analyzed_res = sentence_analysis.analyze_sentence(text)
+    res = analyzed_res.model_dump()
+         
+    return jsonify({
+        "success": True,
+        "data": res,
+        "error": None}), 200
+
+@app.post('/api/translate/words')
+def translate_segments():
+    data = request.get_json() or {}
+    text = data.get("text", "")
+    
+    if not is_valid_text(text):
+        return error_response("EMPTY_TEXT", "Text must not be empty", 400)
+         
+    translated_res = word_translation.word_translate(text)
+    res = translated_res.model_dump()
+    
+    return jsonify({
+        "success": True,
+        "data": res,
+        "error": None}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
