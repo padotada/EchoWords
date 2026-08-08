@@ -63,6 +63,7 @@ textarea{
   box-sizing: border-box;
   color: black;
   overflow: visible;
+  white-space: pre-wrap;
 }
 
 .definition {

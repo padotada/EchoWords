@@ -78,23 +78,35 @@ function App() {
       <h1 className = "Title">EchoWords</h1>
       
       <div className="outer-div">
-         {words.length === 0 ? <div><textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}></textarea></div>
-          : <div className="box2">{
-            words.map((segment, i) => {
+        {words.length === 0 ? 
+          <div>
+            <textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}>
+            </textarea>
+          </div>
+          : 
+          <div className="box2">
+            {words.map((segment, i) => {
+              if(segment.type === "whitespace"){
+                return (
+                  <span key={i}>{segment.source}</span>
+                );
+              }
+
               return (
-              <div key={i} className="definition">
-              {hover_array[i] && <div className="hover-word">{segment.translation}</div>}
-              <div className="word" style={hover_array[i] ? {"backgroundColor": "yellow"} : {}} 
+              <span key={i} className="definition">
+              {hover_array[i] && (<span className="hover-word">{segment.translation}</span>)}
+
+              <span className="word" style={hover_array[i] ? {"backgroundColor": "yellow"} : {}} 
               onMouseEnter={() => 
                 setHoverArray((arr) => [...arr.slice(0, i), true, ...arr.slice(i+1)])} 
               onMouseLeave={() => 
                 setHoverArray((arr) => [...arr.slice(0, i), false, ...arr.slice(i+1)])}
-              > 
-                {segment.source} 
-              </div>
-            </div>)
+              >{segment.source}
+              </span>
+            </span>)
             }
-          )}</div>}
+          )}
+          </div>}
         
         {/* <textarea className="box" readOnly> </textarea>*/}
         <div className="box">{translation}</div>
