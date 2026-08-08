@@ -16,68 +16,83 @@ function App() {
     setTranslation("");
     setHoverArray([]);
   };
+
   async function getData(){
     console.log("get data started");
-    // url = "http://127.0.0.1:5000/tran"
-    const temp = await fetch("http://127.0.0.1:5000/api/translate", {
+    const translationResponse = await fetch("http://127.0.0.1:5000/api/translate", {
       method: "POST",
       headers: {
-        "Content-type" : "text/plain",
+        "Content-type" : "application/json",
       },
-      body: msg,
+      body: JSON.stringify({text: msg}),
     });
-    const res = await temp.text();
-    setTranslation(res);
-    console.log("F");
-    console.log(res);
-    console.log(msg);
+    const translationResult = await translationResponse.json();
+    if (!translationResponse.ok) {
+      throw new Error(translationResult.error?.message || "Translation failed");
+    }
+    setTranslation(translationResult.data.translation);
 
-    console.log("ran res", res);
-    console.log(msg)
-    const w_list = await fetch("http://127.0.0.1:5000/api/translate/words", {
+    const wordResponse = await fetch("http://127.0.0.1:5000/api/translate/words", {
       method: "POST",
       headers:  {
         "Content-type" : "application/json",
       },
-      body: msg,
+      body: JSON.stringify({
+        text: msg
+      }),
     });
-    const res3 = await w_list.json();
-    //console.log('hi');
-    //console.log(res3);
-    setWords(res3);
-    setHoverArray(Array(res3.length).fill(false))
+    const wordResult = await wordResponse.json();
+    if (!wordResponse.ok) {
+      throw new Error(
+        wordResult.error?.message || "Segment translation failed"
+      );
+    }
+    setWords(wordResult.data.segments);
+    setHoverArray(Array(wordResult.data.segments.length).fill(false))
 
     //console.log(words);
     
   }
+
   async function unpack() {
-    const sentence = await fetch("http://127.0.0.1:5000/api/analyze/sentence",{
+    const response = await fetch("http://127.0.0.1:5000/api/analyze/sentence",{
       method: "POST",
       headers:  {
         "Content-type" : "application/json",
       },
-      body: msg,
+      body: JSON.stringify({text: msg}),
     });
-    let res2 = await sentence.json();
-    console.log("Analysis response:", res2);
-    console.log("Response type:", typeof res2);
-    console.log("Is array:", Array.isArray(res2));
-    if(!Array.isArray(res2)) res2 = [res2]
-    setAnalysis(res2);
+    const result = await response.json();
+    console.log("Full response:", result);
+    console.log("Sentences:", result.data?.sentences);
+    if (!response.ok) {
+      throw new Error(
+        result.error?.message || "Sentence analysis failed"
+      );
+    }
+    setAnalysis(result.data.sentences);
   }
+
   return (
     <>
       <h1 className = "Title">EchoWords</h1>
       
       <div className="outer-div">
-         {!words ? <div><textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}></textarea></div>
+         {words.length === 0 ? <div><textarea className="box placeholder1" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}></textarea></div>
           : <div className="box2">{
-            words.map((e, i) => {
-              const elem = Object.entries(e)[0];
-              return (<div className='definition'>
-              {hover_array[i] && <div className="hover-word">{elem[1]}</div>}
-              <div style={hover_array[i] ? {"backgroundColor": "yellow"} : {}} className = "word" onMouseEnter={() => setHoverArray((arr) => [...arr.slice(0, i), true, ...arr.slice(i+1)])} onMouseLeave={() => setHoverArray((arr) => [...arr.slice(0, i), false, ...arr.slice(i+1)])}> {elem[0]} </div>
-              </div>)
+            words.map((segment, i) => {
+              return (
+              <div key={i} className="definition">
+              {hover_array[i] && <div className="hover-word">{segment.translation}</div>}
+              <div className="word" style={hover_array[i] ? {"backgroundColor": "yellow"} : {}} 
+              onMouseEnter={() => 
+                setHoverArray((arr) => [...arr.slice(0, i), true, ...arr.slice(i+1)])} 
+              onMouseLeave={() => 
+                setHoverArray((arr) => [...arr.slice(0, i), false, ...arr.slice(i+1)])}
+              > 
+                {segment.source} 
+              </div>
+            </div>)
             }
           )}</div>}
         
@@ -91,22 +106,41 @@ function App() {
       <div className="lower-modules">
         <div className="btn-container2">
           <button className="second-btn" onClick={()=>unpack()}>Analyze</button>
-          {/* <button className="second-btn" onClick={()=>setDefClick(false)}>Definitions</button>  */}
         </div>
         
         {!defClick ? <div className="lower-box">
-          {analysis &&
-          analysis.map((a, i) => {
-            const original = Object.entries(a);
-            const reordered = [original[2], original[3], original[1], original[0]]
-            return <div key={i} className="analysis-line">{reordered.map((b) => {
-              return(
-                <div key={b[1]}><b>{b[0]}</b>{`: ${b[1]}`}</div>
-              )
-            })}</div>
-          })
+          {analysis.map((sentence, i) => (
+            <div key={i} className="analysis-line">
+              <div><b>Sentence:</b> {sentence.source}</div>
+              <div><b>Translation:</b> {sentence.translation}</div>
+              <div><b>Structure:</b> {sentence.structure}</div>
+              <div><b>Explanation:</b> {sentence.explanation}</div>
+              <div className="components">
+                <h3>Components</h3>
+                {sentence.components.map((component, componentIndex) => (
+                <div key={componentIndex} className="component">
+                  <div>
+                    <b>Source:</b> {component.source}
+                  </div>
+
+                  <div>
+                    <b>Translation:</b> {component.translation}
+                  </div>
+
+                  <div>
+                    <b>Role:</b> {component.role}
+                  </div>
+
+                  <div>
+                    <b>Part of speech:</b> {component.part_of_speech}
+                  </div>
+                </div>
+              ))}
+              </div>
+            </div>
+          ))}
+      </div> : <div className="lower-box">Definition</div>
       }
-      </div> : <div className="lower-box">Definition</div>}
         
       </div>
     </>
