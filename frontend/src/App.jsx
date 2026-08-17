@@ -75,16 +75,23 @@ function App() {
 
   return (
     <>
-      <h1 className = "Title">EchoWords</h1>
-      
-      <div className="outer-div">
+
+    <header className="app-header">
+      <h1>EchoWords</h1>
+      <p>Translate text and understand how each sentence works.</p>
+    </header>
+
+    <div className="outer-div">
+      <section className="text-column">
+        <h2>Original Text</h2>
+
         {words.length === 0 ? 
           <div>
             <textarea className="box" placeholder="Enter Text" onChange={(e) => setMsg(e.target.value)} value={msg}>
             </textarea>
           </div>
           : 
-          <div className="box2">
+          <div className="box box2">
             {words.map((segment, i) => {
               if(segment.type === "whitespace"){
                 return (
@@ -107,21 +114,38 @@ function App() {
             }
           )}
           </div>}
-        
-        {/* <textarea className="box" readOnly> </textarea>*/}
-        <div className="box">{translation}</div>
-      </div>
+      </section>
+      
+      <section className="text-column">
+        <h2>English Translation</h2>
+        <div className="box translation-box">
+          {translation || (
+            <span className="empty-message">Your translation will appear here.</span>
+          )}
+        </div>
+      </section>
+
+    </div>
       <div className="btn-container1">
       <button className="first-btn" disabled={!msg.trim()} onClick={()=>getData()} >Translate</button>
       <button className="first-btn" onClick={handleClear}>Clear</button>
       </div>
-      <div className="lower-modules">
-        <div className="btn-container2">
-          <button className="second-btn" onClick={()=>unpack()}>Analyze</button>
+      <div className="analysis-section">
+        <div className="section-heading">
+          <div>
+            <h2>Sentence analysis</h2>
+            <p>Explore grammar, structure, and sentence components.</p>
+          </div>
+          <button className="secondary-btn" disabled={!msg.trim()} onClick={unpack}>Analyze</button>
         </div>
         
-        {!defClick ? <div className="lower-box">
-          {analysis.map((sentence, i) => (
+        <div className="lower-box">
+          {analysis.length === 0 ? (
+            <span className="empty-message">
+              Analyze the text to see a detailed explanation.
+            </span>
+          ) : (
+            analysis.map((sentence, i) => (
             <div key={i} className="analysis-line">
               <div><b>Sentence:</b> {sentence.source}</div>
               <div><b>Translation:</b> {sentence.translation}</div>
@@ -150,10 +174,8 @@ function App() {
               ))}
               </div>
             </div>
-          ))}
-      </div> : <div className="lower-box">Definition</div>
-      }
-        
+          )))}
+        </div>  
       </div>
     </>
   )
